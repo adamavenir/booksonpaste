@@ -164,8 +164,7 @@ def mock_text_sources(monkeypatch):
 def test_generate_text_chars(temp_cache_dir, mock_text_sources):
     """Test character-based text generation."""
     target_size = 100
-    text = generate_text(target_size, mode='chars')
-    print(f"\nGenerated text (len={len(text)}):\n{text}")  # Debug print
+    text = generate_text(target_size, mode='chars', debug=False)
     # Should not exceed target size
     assert len(text) <= target_size
     # Should be reasonably close to target (within 20%)
@@ -174,7 +173,7 @@ def test_generate_text_chars(temp_cache_dir, mock_text_sources):
 def test_generate_text_tokens(temp_cache_dir, mock_text_sources):
     """Test token-based text generation."""
     target_size = 100
-    text = generate_text(target_size, mode='tokens')
+    text = generate_text(target_size, mode='tokens', debug=False)
     token_count = count_tokens(text)
     # Should not exceed target size
     assert token_count <= target_size
@@ -183,12 +182,28 @@ def test_generate_text_tokens(temp_cache_dir, mock_text_sources):
 
 def test_generate_text_wrapping(temp_cache_dir, mock_text_sources):
     """Test that generated text maintains paragraph structure."""
-    text = generate_text(1000, mode='chars')
+    text = generate_text(1000, mode='chars', debug=False)
     paragraphs = [p for p in text.split('\n\n') if p.strip()]
     # Should have at least one paragraph
     assert len(paragraphs) > 0
     # Each paragraph should be non-empty
     assert all(len(p.strip()) > 0 for p in paragraphs)
+
+def test_generate_text_debug_output(temp_cache_dir, mock_text_sources, capsys):
+    """Test that debug output is only shown when debug=True."""
+    # Test without debug
+    text = generate_text(100, mode='chars', debug=False)
+    captured = capsys.readouterr()
+    assert "Source text length:" not in captured.err
+    assert "Number of paragraphs:" not in captured.err
+    assert "Added paragraph" not in captured.err
+    
+    # Test with debug
+    text = generate_text(100, mode='chars', debug=True)
+    captured = capsys.readouterr()
+    assert "Source text length:" in captured.err
+    assert "Number of paragraphs:" in captured.err
+    assert "Total paragraphs available:" in captured.err
 
 def test_download_text(temp_cache_dir):
     """Test text downloading and caching."""

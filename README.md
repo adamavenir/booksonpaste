@@ -44,6 +44,9 @@ bop -t 100            # 100 tokens
 # Cache management
 bop --clear           # Clear the cache
 bop --new 100k        # Clear cache and generate new text
+
+# Debug output
+bop 100k --debug      # Show detailed progress information
 ```
 
 ## Source Texts
@@ -96,6 +99,6 @@ The test suite covers:
 
 ## Why?
 
-I originally created this tool to test the input limits of the Claude and ChatGPT web interfaces for [cpai](https://github.com/adamavenir/cpai). (These apps don't have clearly documented limits on what you can paste into them.) This tool helps you generate text of specific sizes—useful for testing these limits as well as any other text processing systems.
+I originally created this tool to test the input limits of the Claude and ChatGPT interfaces for [cpai](https://github.com/adamavenir/cpai). These apps don't have clearly documented limits on what you can paste into them. This tool helps you generate text of specific sizes—useful for testing these limits as well as any other text processing systems.
 
 "Lorem ipsum" is fine for visual placeholders, but when you need to test systems that process natural language (tokenizers, parsers, etc.), you want real text with natural word frequencies, punctuation, and structure.

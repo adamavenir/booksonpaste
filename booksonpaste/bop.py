@@ -152,16 +152,19 @@ def format_output(chars: int, tokens: int, output_type: str = 'clipboard') -> st
     }
     return f"{icons[output_type]} {format_number(chars)} characters ({format_number(tokens)} tokens)"
 
-def generate_text(target_size: int, mode: str = 'chars') -> str:
+def generate_text(target_size: int, mode: str = 'chars', debug: bool = False) -> str:
     """
     Generate text of approximately target_size.
     mode can be 'chars' or 'tokens'
+    debug enables verbose output
     """
     print("Fetching text...", file=sys.stderr, end='', flush=True)
     source_text = get_random_text()
-    print(f"\nSource text length: {len(source_text)}", file=sys.stderr)
+    if debug:
+        print(f"\nSource text length: {len(source_text)}", file=sys.stderr)
     paragraphs = [p.strip() for p in source_text.split('\n\n') if p.strip()]
-    print(f"Number of paragraphs: {len(paragraphs)}", file=sys.stderr)
+    if debug:
+        print(f"Number of paragraphs: {len(paragraphs)}", file=sys.stderr)
     
     # If we don't have enough text from one source, get more
     while mode == 'chars' and sum(len(p) for p in paragraphs) < target_size * 1.2 or \
@@ -172,11 +175,13 @@ def generate_text(target_size: int, mode: str = 'chars') -> str:
         paragraphs.extend(additional_paragraphs)
     
     print("\nGenerating...", file=sys.stderr)
-    print(f"Total paragraphs available: {len(paragraphs)}", file=sys.stderr)
+    if debug:
+        print(f"Total paragraphs available: {len(paragraphs)}", file=sys.stderr)
     
     # Pick a random starting point
     start_idx = random.randint(0, len(paragraphs) - 1)
-    print(f"Starting at paragraph {start_idx}", file=sys.stderr)
+    if debug:
+        print(f"Starting at paragraph {start_idx}", file=sys.stderr)
     
     result = []
     current_size = 0
@@ -213,7 +218,8 @@ def generate_text(target_size: int, mode: str = 'chars') -> str:
             
         result.append(paragraph + '\n\n')
         current_size += next_size
-        print(f"Added paragraph {current_idx}, current size: {current_size}", file=sys.stderr)
+        if debug:
+            print(f"Added paragraph {current_idx}, current size: {current_size}", file=sys.stderr)
         
         # Move to next paragraph, wrapping around if needed
         current_idx = (current_idx + 1) % len(paragraphs)
@@ -237,7 +243,8 @@ Examples:
   bop -t 100 -f out.txt  # Write 100 tokens to file
   bop 1m --new        # Clear cache and generate new text
   bop --gen 100k      # Just generate text without copying/saving
-  bop --clear         # Clear the cache without generating text"""
+  bop --clear         # Clear the cache without generating text
+  bop 100k --debug    # Show detailed progress information"""
         )
         parser.add_argument('size', nargs='?', help='Amount of text to generate (e.g., 100, 100k, 1m)')
         parser.add_argument('-t', '--tokens', action='store_true', help='Count in tokens instead of characters')
@@ -246,6 +253,7 @@ Examples:
         parser.add_argument('-n', '--new', action='store_true', help='Clear cache and fetch new text')
         parser.add_argument('-g', '--gen', action='store_true', help='Just generate and display text without copying')
         parser.add_argument('-c', '--clear', action='store_true', help='Clear the cache without generating text')
+        parser.add_argument('-d', '--debug', action='store_true', help='Show detailed progress information')
         
         args = parser.parse_args()
         
@@ -267,7 +275,7 @@ Examples:
             mode = 'tokens' if args.tokens else 'chars'
             
             # Generate text
-            text = generate_text(target_size, mode)
+            text = generate_text(target_size, mode, debug=args.debug)
             char_count = len(text)
             token_count = count_tokens(text)
             
