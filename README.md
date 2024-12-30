@@ -8,7 +8,7 @@ Generate text snippets from classic literature. Useful for testing text input fi
 - Copy directly to clipboard or output to file/stdout
 - Uses actual literature instead of lorem ipsum
 - Maintains natural paragraph structure
-- Random start place with smart text wrapping
+- Smart text wrapping that preserves narrative flow
 - Automatic cache management for faster subsequent runs
 - Cross-book text generation for larger outputs
 
@@ -61,8 +61,41 @@ Text is cached locally in `~/.booksonpaste/cache` for faster subsequent runs. Th
 - `--clear` command to manually clear the cache
 - `--new` flag to refresh cache and generate new text
 
+## Development
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/adamavenir/booksonpaste.git
+cd booksonpaste
+
+# Install in development mode with test dependencies
+pip install -e ".[dev]"
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run tests with coverage report
+pytest --cov=booksonpaste
+
+# Run specific test file
+pytest tests/test_bop.py
+```
+
+The test suite covers:
+- Size parsing and formatting
+- Text generation and wrapping
+- Token counting
+- Cache management
+- Output formatting
+
 ## Why?
 
-I originally created this tool to test the input limits of the Claude and ChatGPT interfacesfor [cpai](https://github.com/adamavenir/cpai). These apps don't have clearly documented limits on what you can paste into them. This tool helps you generate text of specific sizes—useful for testing these limits as well as any other text processing systems.
+I originally created this tool to test the input limits of the Claude and ChatGPT web interfaces for [cpai](https://github.com/adamavenir/cpai). (These apps don't have clearly documented limits on what you can paste into them.) This tool helps you generate text of specific sizes—useful for testing these limits as well as any other text processing systems.
 
 "Lorem ipsum" is fine for visual placeholders, but when you need to test systems that process natural language (tokenizers, parsers, etc.), you want real text with natural word frequencies, punctuation, and structure.

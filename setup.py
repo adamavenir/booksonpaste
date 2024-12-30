@@ -8,6 +8,12 @@ setup(
         "tiktoken>=0.5.1",
         "requests>=2.31.0",
     ],
+    extras_require={
+        'dev': [
+            'pytest>=7.0.0',
+            'pytest-cov>=4.0.0',
+        ],
+    },
     entry_points={
         'console_scripts': [
             'bop=booksonpaste.bop:main',

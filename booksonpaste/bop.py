@@ -159,7 +159,9 @@ def generate_text(target_size: int, mode: str = 'chars') -> str:
     """
     print("Fetching text...", file=sys.stderr, end='', flush=True)
     source_text = get_random_text()
+    print(f"\nSource text length: {len(source_text)}", file=sys.stderr)
     paragraphs = [p.strip() for p in source_text.split('\n\n') if p.strip()]
+    print(f"Number of paragraphs: {len(paragraphs)}", file=sys.stderr)
     
     # If we don't have enough text from one source, get more
     while mode == 'chars' and sum(len(p) for p in paragraphs) < target_size * 1.2 or \
@@ -169,10 +171,12 @@ def generate_text(target_size: int, mode: str = 'chars') -> str:
         additional_paragraphs = [p.strip() for p in additional_text.split('\n\n') if p.strip()]
         paragraphs.extend(additional_paragraphs)
     
-    print("\nGenerating...", file=sys.stderr, flush=True)
+    print("\nGenerating...", file=sys.stderr)
+    print(f"Total paragraphs available: {len(paragraphs)}", file=sys.stderr)
     
     # Pick a random starting point
     start_idx = random.randint(0, len(paragraphs) - 1)
+    print(f"Starting at paragraph {start_idx}", file=sys.stderr)
     
     result = []
     current_size = 0
@@ -185,14 +189,31 @@ def generate_text(target_size: int, mode: str = 'chars') -> str:
         if mode == 'tokens':
             next_size = count_tokens(paragraph)
         else:
-            next_size = len(paragraph)
+            next_size = len(paragraph + '\n\n')  # Include newlines in size calculation
             
         # Stop if adding this paragraph would exceed target size
         if current_size + next_size > target_size:
+            # If this is the first paragraph and it's too big, take a portion
+            if not result:
+                if mode == 'tokens':
+                    words = paragraph.split()
+                    partial = []
+                    partial_size = 0
+                    for word in words:
+                        word_size = count_tokens(word + ' ')
+                        if partial_size + word_size > target_size:
+                            break
+                        partial.append(word)
+                        partial_size += word_size
+                    if partial:
+                        result.append(' '.join(partial) + '\n\n')
+                else:
+                    result.append(paragraph[:target_size - 2] + '\n\n')
             break
             
         result.append(paragraph + '\n\n')
         current_size += next_size
+        print(f"Added paragraph {current_idx}, current size: {current_size}", file=sys.stderr)
         
         # Move to next paragraph, wrapping around if needed
         current_idx = (current_idx + 1) % len(paragraphs)
